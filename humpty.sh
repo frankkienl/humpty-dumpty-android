@@ -36,7 +36,8 @@ function dump_db {
     notice "Dumping $pkg/$filename to dumps/$pkg/$filename..."
     mode="$(adb shell run-as $pkg ls -al /data/data/$pkg/$filename | awk '{k=0;for(i=0;i<=8;i++)k+=((substr($1,i+2,1)~/[rwx]/)*2^(8-i));if(k)printf("%0o ",k)}')"
     # make the file world-readable
-    adb shell run-as $pkg chmod 777 /data/data/$pkg/$filename 1>/dev/null
+    #adb shell run-as $pkg chmod 777 /data/data/$pkg/$filename 1>/dev/null
+    adb shell run-as $pkg chmod 777 $filename 1>/dev/null
     ret=$?
     if [ $ret == 255 ]; then
         fatal "Failed; no device, or multiple devices attached to adb"
@@ -44,7 +45,8 @@ function dump_db {
         fatal "Failed; adb not found?"
     fi
     # check if the file exists
-    adb shell run-as $pkg ls /data/data/$pkg/$filename | grep "No such file" 2>/dev/null
+    #adb shell run-as $pkg ls /data/data/$pkg/$filename | grep "No such file" 2>/dev/null
+    adb shell run-as $pkg ls $filename | grep "No such file" 2>/dev/null
     if [ $? != 0 ]; then
         # prepare a directory
         mkdir -p `dirname dumps/$pkg/$filename` 2>/dev/null
@@ -55,10 +57,12 @@ function dump_db {
         else
             # couldn't pull the file; stream its contents instead, removing any end-of-line character returns
             if [ $(uname) == 'Darwin' ]; then
-                adb shell run-as $pkg cat /data/data/$pkg/$filename > dumps/$pkg/$filename
+                #adb shell run-as $pkg cat /data/data/$pkg/$filename > dumps/$pkg/$filename
+                adb shell run-as $pkg cat $filename > dumps/$pkg/$filename
                 perl -pi -e 's/\r\n/\n/g' dumps/$pkg/$filename
             else
-                adb shell run-as $pkg cat /data/data/$pkg/$filename | sed 's/\r$//' > dumps/$pkg/$filename
+                #adb shell run-as $pkg cat /data/data/$pkg/$filename | sed 's/\r$//' > dumps/$pkg/$filename
+                adb shell run-as $pkg cat $filename | sed 's/\r$//' > dumps/$pkg/$filename
             fi
             if [ $? == 0 ]; then
                 success "Success!"
@@ -81,7 +85,8 @@ function dump_db {
         list_files
     fi
     # restore permission on file
-    adb shell run-as $pkg chmod $mode /data/data/$pkg/$filename 1>/dev/null
+    #adb shell run-as $pkg chmod $mode /data/data/$pkg/$filename 1>/dev/null
+    adb shell run-as $pkg chmod $mode $filename 1>/dev/null
     if [ $? != 0 ]; then
         error "Could not restore file mode $mode on /data/data/$pkg/$filename"
     fi
@@ -136,7 +141,7 @@ if [ ${#sel_list_apps[@]} -eq 0 ] && [ ${#sel_dump_apps[@]} -eq 0 ]; then
 fi
 if [ $show_help = true ]; then
     echo "Usage: `basename $0` [OPTION] HOST"
-    echo "Where HOST is the package-name (must be debugable)"
+	echo "Where HOST is the package-name (must be debugable)"
     echo "Where OPTION is any of:"
     echo "    -l, --list-files <package-name>"
     echo "        list all files inside the data directory of <package-name>"
