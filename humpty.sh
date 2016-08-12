@@ -136,6 +136,7 @@ if [ ${#sel_list_apps[@]} -eq 0 ] && [ ${#sel_dump_apps[@]} -eq 0 ]; then
 fi
 if [ $show_help = true ]; then
     echo "Usage: `basename $0` [OPTION] HOST"
+    echo "Where HOST is the package-name (must be debugable)"
     echo "Where OPTION is any of:"
     echo "    -l, --list-files <package-name>"
     echo "        list all files inside the data directory of <package-name>"
